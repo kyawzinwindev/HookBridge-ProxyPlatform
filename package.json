@@ -1,0 +1,19 @@
+{
+  "name": "hookbridge-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "High-throughput webhook ingestion, deduplication and relay hub",
+  "packageManager": "pnpm@12.3.4",
+  "scripts": {
+    "dev:api": "pnpm --filter @hookbridge/api dev",
+    "dev:web": "pnpm --filter @hookbridge/web dev",
+    "dev:cli": "pnpm --filter hookbridge dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "db:generate": "pnpm --filter @hookbridge/api prisma:generate",
+    "db:migrate": "pnpm --filter @hookbridge/api prisma:migrate"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

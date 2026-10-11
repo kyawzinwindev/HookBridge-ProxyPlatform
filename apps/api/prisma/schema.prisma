@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Endpoint {
+  id        String   @id @default(cuid())
+  name      String
+  secretKey String   @unique
+  targetUrl String
+  createdAt DateTime @default(now())
+
+  events WebhookEvent[]
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  endpointId String
+  source     String
+  externalId String?
+  headers    Json
+  payload    Json
+  status     String   @default("RECEIVED")
+  createdAt  DateTime @default(now())
+
+  endpoint Endpoint       @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  logs     DeliveryLog[]
+
+  @@index([externalId])
+  @@index([endpointId])
+}
+
+model DeliveryLog {
+  id           String   @id @default(cuid())
+  eventId      String
+  destination  String
+  statusCode   Int?
+  latencyMs    Int?
+  responseBody String?
+  createdAt    DateTime @default(now())
+
+  event WebhookEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}
