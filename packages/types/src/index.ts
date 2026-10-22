@@ -6,7 +6,7 @@ export type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
-export type EventStatus = "RECEIVED" | "QUEUED" | "DELIVERED" | "FAILED" | "DUPLICATE";
+export type EventStatus = "PENDING" | "RECEIVED" | "QUEUED" | "DELIVERED" | "FAILED" | "DUPLICATE";
 
 /** An inbound webhook as ingested by the hub. */
 export interface WebhookEventPayload {
