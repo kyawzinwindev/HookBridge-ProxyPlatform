@@ -7,7 +7,7 @@ import { webhookQueue } from "../src/queues/webhook.queue.js";
 
 const emit = vi.fn();
 const io = { to: vi.fn(() => ({ emit })) } as never;
-const app = createApp(io, "http://localhost:3001");
+const app = createApp(io, ["http://localhost:3000", "http://localhost:3001"]);
 
 let endpointId: string;
 
@@ -94,5 +94,43 @@ describe("POST /in/:endpointId", () => {
     const res = await post("invalid-endpoint-id", { x: 1 });
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: "Endpoint not found" });
+  });
+});
+
+describe("GET /api/endpoints/:endpointId", () => {
+  it("returns endpoint details", async () => {
+    const res = await app.request(`/api/endpoints/${endpointId}`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ id: endpointId, name: "vitest-endpoint" });
+  });
+
+  it("returns the latest events first, with logs", async () => {
+    const eventId = `evt-${randomUUID()}`;
+    const created = await (await post(endpointId, { latest: true }, { "x-event-id": eventId })).json();
+
+    const res = await app.request(`/api/endpoints/${endpointId}/events`);
+    expect(res.status).toBe(200);
+    const events = await res.json();
+    expect(events.length).toBeLessThanOrEqual(50);
+    expect(events[0]).toMatchObject({
+      id: created.id,
+      externalId: eventId,
+      status: "PENDING",
+      payload: { latest: true },
+      logs: [],
+    });
+  });
+
+  it("returns 404 for unknown endpoints", async () => {
+    expect((await app.request("/api/endpoints/nope")).status).toBe(404);
+    expect((await app.request("/api/endpoints/nope/events")).status).toBe(404);
+  });
+
+  it("allows CORS from the dashboard origin with credentials", async () => {
+    const res = await app.request(`/api/endpoints/${endpointId}`, {
+      headers: { origin: "http://localhost:3000" },
+    });
+    expect(res.headers.get("access-control-allow-origin")).toBe("http://localhost:3000");
+    expect(res.headers.get("access-control-allow-credentials")).toBe("true");
   });
 });

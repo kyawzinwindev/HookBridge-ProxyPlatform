@@ -5,17 +5,24 @@ import { Server as SocketIOServer } from "socket.io";
 import { createApp } from "./app.js";
 
 const PORT = Number(process.env.PORT ?? 4000);
-const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "http://localhost:3001";
+// CORS_ORIGIN may be a comma-separated list; the local dashboard ports are always allowed.
+const CORS_ORIGINS = [
+  ...new Set([
+    ...(process.env.CORS_ORIGIN ?? "http://localhost:3001").split(",").map((o) => o.trim()).filter(Boolean),
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ]),
+];
 
 // The Socket.io server needs the HTTP server, and the app needs io, so create them in this order.
 let handler: (req: Request) => Response | Promise<Response> = () => new Response("starting", { status: 503 });
 const httpServer = createServer(getRequestListener((req) => handler(req)));
 
 const io = new SocketIOServer(httpServer, {
-  cors: { origin: CORS_ORIGIN },
+  cors: { origin: CORS_ORIGINS, credentials: true },
 });
 
-const app = createApp(io, CORS_ORIGIN);
+const app = createApp(io, CORS_ORIGINS);
 handler = app.fetch;
 
 io.on("connection", (socket) => {

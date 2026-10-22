@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { INGEST_URL } from "@/lib/sample-data";
+import { cn } from "@/lib/utils";
 
-export function TopNav() {
+interface Props {
+  ingestUrl: string;
+  apiHost: string;
+  connected: boolean;
+}
+
+export function TopNav({ ingestUrl, apiHost, connected }: Props) {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
-    navigator.clipboard?.writeText(INGEST_URL).catch(() => {});
+    navigator.clipboard?.writeText(ingestUrl).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
@@ -28,7 +34,7 @@ export function TopNav() {
       <div className="ml-2 hidden min-w-0 items-center gap-2 md:flex">
         <div className="flex h-8 min-w-0 items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 pl-3 pr-1 dark:border-zinc-800 dark:bg-zinc-900">
           <span className="shrink-0 text-[10px] uppercase tracking-wider text-zinc-500">Ingest</span>
-          <code className="truncate font-mono text-xs text-zinc-700 dark:text-zinc-300">{INGEST_URL}</code>
+          <code className="truncate font-mono text-xs text-zinc-700 dark:text-zinc-300">{ingestUrl}</code>
           <button
             onClick={copy}
             className="h-6 rounded px-2 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-800"
@@ -41,9 +47,9 @@ export function TopNav() {
       <div className="flex-1" />
 
       <div className="hidden h-8 items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 px-3 dark:border-zinc-800 dark:bg-zinc-900 sm:flex">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <span className={cn("h-1.5 w-1.5 rounded-full", connected ? "bg-emerald-500" : "bg-rose-500")} />
         <span className="text-xs text-zinc-700 dark:text-zinc-300">
-          Connected to <span className="font-mono">localhost:3000</span>
+          {connected ? "Connected to" : "Disconnected from"} <span className="font-mono">{apiHost}</span>
         </span>
       </div>
 

@@ -33,6 +33,20 @@ export interface DeliveryLog {
   createdAt: string;
 }
 
+/** Endpoint details as returned by `GET /api/endpoints/:endpointId`. */
+export interface EndpointInfo {
+  id: string;
+  name: string;
+  targetUrl: string;
+  secretKey: string;
+  createdAt: string;
+}
+
+/** An ingested event plus its delivery attempts, as returned by `GET /api/endpoints/:endpointId/events`. */
+export interface WebhookEventDetail extends WebhookEventPayload {
+  logs: DeliveryLog[];
+}
+
 /** Message relayed over Socket.io from the hub to a local tunnel agent (and back). */
 export interface TunnelRelayMessage {
   eventId: string;
