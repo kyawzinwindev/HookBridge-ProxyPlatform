@@ -40,6 +40,7 @@ pnpm install
 
 # 2. Configure environment
 cp .env.example .env
+cp .env.example apps/api/.env
 
 # 3. Start Postgres and Redis
 docker compose up -d
