@@ -7,7 +7,7 @@
     "hookbridge": "./dist/index.js"
   },
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/index.ts listen 3000",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit"
   },
